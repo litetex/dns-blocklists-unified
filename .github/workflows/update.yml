@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '25 0 * * *'
   workflow_dispatch:
+    inputs:
+      skip_download:
+        type: boolean
+        description: 'Skip download'
+        default: false
 
 permissions:
   contents: write
@@ -44,7 +49,12 @@ jobs:
         run: |
           set -e
           docker network create --ipv6 blocklists-net || echo "Already exists"
-          docker run --rm -v $PWD/source:/workdir -v $PWD/source_cached_remote_lists:/source_cached_remote_lists -v $PWD/out:/out -e OUT_FILE=/out/unified-hosts-blocklist.txt dblu
+          docker run --rm -v $PWD/source:/workdir \
+            -v $PWD/source_cached_remote_lists:/source_cached_remote_lists \
+            -v $PWD/out:/out \
+            ${{ inputs.skip_download && '-e SKIP_DOWNLOAD=true' || '' }} \
+            -e OUT_FILE=/out/unified-hosts-blocklist.txt \
+            dblu
           docker network rm blocklists-net || echo "Failed to remove"
 
       - name: Get Timestamp

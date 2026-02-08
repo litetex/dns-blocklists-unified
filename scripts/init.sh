@@ -24,17 +24,24 @@ do
     fi
     file_name=$(echo $dwl_url | sed -r 's@[:/.]+@_@g')
     cached_file_names+=($file_name)
-    echo "Downloading blocklist from $dwl_url to $file_name"
-    if wget --timeout=10 -qO - $dwl_url > $BL_DWL_TMP_DIR/$file_name; then
-        if [ -s $BL_DWL_TMP_DIR/$file_name ]; then
-            mv $BL_DWL_TMP_DIR/$file_name /source_cached_remote_lists/$file_name
-        else
-            echo "[WARN] Empty payload received from $dwl_url - not copying"
-        fi
-    else
-        echo "[WARN] Failed to download $dwl_url"
+
+    if [ "$SKIP_DOWNLOAD" = true ]; then
+        continue;
     fi
+    {
+        echo "Downloading blocklist from $dwl_url to $file_name"
+        if wget --timeout=30 -qO - $dwl_url > $BL_DWL_TMP_DIR/$file_name; then
+            if [ -s $BL_DWL_TMP_DIR/$file_name ]; then
+                mv $BL_DWL_TMP_DIR/$file_name /source_cached_remote_lists/$file_name
+            else
+                echo "[WARN] Empty payload received from $dwl_url - not copying"
+            fi
+        else
+            echo "[WARN] Failed to download $dwl_url"
+        fi
+    } &
 done
+wait
 echo "Finished downloading"
 
 echo "Importing remote lists"
@@ -66,6 +73,7 @@ cat $BL_FILE | \
     -e '/255.255.255.255/d' \
     -e '/::/d' \
     -e '/#/d' \
+    -e 's/\t/ /g' \
     -e 's/ //g' \
     -e 's/  //g' \
     -e '/^$/d' \
@@ -74,5 +82,16 @@ cat $BL_FILE | \
 
 echo "Removing duplicates from the list..."
 sort -u $BL_TMP_FILE -o $BL_FILE
+
+echo "Filtering out false positives / allowlisting"
+
+dos2unix allowlist.txt
+readarray -t ALLOWLIST_ENTRIES < allowlist.txt
+
+for allowlist_entry in "${ALLOWLIST_ENTRIES[@]}"
+do
+    echo "Filtering out $allowlist_entry"
+    sed -i "/0.0.0.0 $allowlist_entry/d" $BL_FILE
+done
 
 cat $BL_FILE > $OUT_FILE
