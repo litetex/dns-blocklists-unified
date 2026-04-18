@@ -5,6 +5,7 @@ readarray -t BLOCKLIST_DOWNLOADS < remote_lists.txt
 
 BL_FILE="/tmp/hosts-blocklist.txt"
 BL_TMP_FILE="/tmp/hosts-blocklist.txt.tmp"
+BL_TMP_FILE2="/tmp/hosts-blocklist2.txt.tmp"
 
 rm -f $BL_FILE
 touch $BL_FILE
@@ -66,6 +67,7 @@ sed -i -e '$a\' $BL_FILE
 
 rm -f $BL_TMP_FILE
 
+echo "Filtering..."
 cat $BL_FILE | \
   sed \
     -e 's/0.0.0.0//g' \
@@ -79,6 +81,11 @@ cat $BL_FILE | \
     -e '/^$/d' \
     -e 's/^/0.0.0.0 /g' | \
   awk '!a[$0]++' > $BL_TMP_FILE
+
+echo "Filtering out IPv4 addresses..."
+grep -v -E '.*((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])$' $BL_TMP_FILE > $BL_TMP_FILE2
+
+mv $BL_TMP_FILE2 $BL_TMP_FILE
 
 echo "Removing duplicates from the list..."
 sort -u $BL_TMP_FILE -o $BL_FILE
