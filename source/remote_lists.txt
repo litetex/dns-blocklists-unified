@@ -50,6 +50,5 @@ https://raw.githubusercontent.com/hagezi/dns-blocklists/refs/heads/main/hosts/na
 https://raw.githubusercontent.com/hagezi/dns-blocklists/refs/heads/main/hosts/native.oppo-realme.txt
 https://raw.githubusercontent.com/hagezi/dns-blocklists/refs/heads/main/hosts/native.xiaomi.txt
 
-## https://github.com/mullvad/dns-blocklists
-
-https://raw.githubusercontent.com/mullvad/dns-blocklists/refs/heads/main/lists/relay/privacy/mullvad-tracker-blocklist
+# Multi purpose
+https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.mini-onlydomains.txt
