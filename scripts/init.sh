@@ -82,7 +82,7 @@ cat $BL_FILE | \
   awk '!a[$0]++' > $BL_TMP_FILE
 
 echo "Filtering out IPv4 addresses..."
-grep -v -E '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])$' $BL_TMP_FILE > $BL_TMP_FILE2
+grep -v -E '^((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])$' $BL_TMP_FILE > $BL_TMP_FILE2
 
 mv $BL_TMP_FILE2 $BL_TMP_FILE
 
