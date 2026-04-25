@@ -78,12 +78,11 @@ cat $BL_FILE | \
     -e 's/\t/ /g' \
     -e 's/ //g' \
     -e 's/  //g' \
-    -e '/^$/d' \
-    -e 's/^/0.0.0.0 /g' | \
+    -e '/^$/d' | \
   awk '!a[$0]++' > $BL_TMP_FILE
 
 echo "Filtering out IPv4 addresses..."
-grep -v -E '.*((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])$' $BL_TMP_FILE > $BL_TMP_FILE2
+grep -v -E '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])$' $BL_TMP_FILE > $BL_TMP_FILE2
 
 mv $BL_TMP_FILE2 $BL_TMP_FILE
 
@@ -98,7 +97,7 @@ readarray -t ALLOWLIST_ENTRIES < allowlist.txt
 for allowlist_entry in "${ALLOWLIST_ENTRIES[@]}"
 do
     echo "Filtering out $allowlist_entry"
-    sed -i "/0.0.0.0 $allowlist_entry/d" $BL_FILE
+    sed -i "/$allowlist_entry/d" $BL_FILE
 done
 
 cat $BL_FILE > $OUT_FILE
